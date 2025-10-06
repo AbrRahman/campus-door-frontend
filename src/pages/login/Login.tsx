@@ -45,13 +45,13 @@ const Login = () => {
                   />
                   <p className="text-red-500">{errors?.email?.message}</p>
                 </div>
-                {/* full name */}
+                {/* password */}
                 <div>
                   <label className="block text-slate-100 mb-2">Password</label>
                   <input
                     type="password"
                     {...register("password")}
-                    placeholder="Enter your full name"
+                    placeholder="Enter your password"
                     className="w-full bg-violet-950 text-white placeholder-slate-300 border border-violet-600 rounded-lg px-4 py-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 outline-none"
                   />
                   <p className="text-red-500">{errors?.password?.message}</p>

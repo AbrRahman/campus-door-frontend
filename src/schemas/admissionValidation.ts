@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const admissionValidation = z.object({
-  candidateName: z.string().min(1, "Candidate name is required"),
+  candidateName: z.string().min(1, "Name is required"),
   subject: z.string().min(1, "Subject is required"),
 
   email: z.string().email("Please enter a valid email address"),
