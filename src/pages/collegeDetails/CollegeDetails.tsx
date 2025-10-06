@@ -108,7 +108,7 @@ const CollegeDetails = () => {
         </div>
         {/* admission process */}
         <div className="mt-8px">
-          <h3 className="text-2xl lg:text-3xl font-semibold text-slate-100">
+          <h3 className="text-xl lg:text-2xl font-semibold text-slate-100">
             Admission Process
           </h3>
           <p className="text-base text-slate-400 font-semibold">
