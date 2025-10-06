@@ -229,11 +229,5 @@ const Admission = () => {
     </div>
   );
 };
-//   candidateName: string;
-//   subject: string;
-//   email: string;
-//   phone: string;
-//   address: string;
-//   dateOfBirth: string;
-//   image: FileList;
+
 export default Admission;
