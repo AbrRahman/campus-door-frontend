@@ -5,6 +5,7 @@ export type TCollege = {
   rating: number;
   researchCount: number;
   description: string;
+  admissionProcess?: string;
   events: string[];
   sports: string[];
   researchWorks: string[];
