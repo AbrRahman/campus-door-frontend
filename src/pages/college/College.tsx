@@ -80,7 +80,7 @@ const College = () => {
         </h1>
 
         {/* feature college */}
-        <div className="mt-8 lg:mt-12 grid grid-cols-3 gap-3.5">
+        <div className="mt-8 lg:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-3.5">
           {isLoading &&
             [...Array(3).keys()].map((index) => (
               <CollegeCardSkeleton key={index} />
