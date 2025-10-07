@@ -53,7 +53,8 @@ const MyCollege = () => {
             </h4>
             {/* description */}
             <p className="mt-2.5 text-slate-400 text-base">
-              <strong>About: </strong> {college?.description}
+              <strong className="text-slate-100">About: </strong>{" "}
+              {college?.description}
             </p>
             <h5 className="mt-2 text-md text-slate-100 font-semibold">
               Research Count: {college?.researchCount}
