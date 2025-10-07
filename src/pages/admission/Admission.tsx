@@ -6,82 +6,20 @@ import {
   type TAdmissionInputs,
 } from "../../schemas/admissionValidation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGetAllCollegeQuery } from "../../redux/features/college/collegeApi";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
+import { useAppSelector } from "../../redux/features/hooks";
+import { useCreateAdmissionMutation } from "../../redux/features/admission/admissionApi";
 
 const Admission = () => {
   const [selectedCollege, setSelectedCollege] = useState("");
-  const colleges = [
-    {
-      _id: "abc",
-      name: "Summit Ridge Institute of Technology",
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      admissionProcess:
-        "Applicants must submit an online application along with academic transcripts, a statement of purpose, and two letters of recommendation. Shortlisted candidates will be invited for an online interview before final selection.",
-    },
+  const { user } = useAppSelector((state) => state.auth);
+  const { data: colleges, isLoading: isCollegeDataLoading } =
+    useGetAllCollegeQuery("");
+  const [createAdmission] = useCreateAdmissionMutation();
+  const navigate = useNavigate();
 
-    {
-      _id: "68e398bc77383db5b32ba89f",
-      name: "Aetherfield University",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-    },
-    {
-      _id: "68e398bc77383db5b32ba89dd",
-      name: "Aetherfield University",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-    },
-  ];
-
-  //   react hook form
   // react hookFrom
   const {
     register,
@@ -93,9 +31,48 @@ const Admission = () => {
   });
 
   //   handle admission form
-  const handleAdmission: SubmitHandler<TAdmissionInputs> = (data) => {
-    console.log(data);
-    reset();
+  const handleAdmission: SubmitHandler<TAdmissionInputs> = async (data) => {
+    if (!user) {
+      navigate("/login", {
+        state: { from: { pathname: "/admission" } },
+        replace: true,
+      });
+    }
+
+    // generate form data
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      if (key !== "image") {
+        formData.append(key, value as string);
+      }
+    }
+    // add user id and college id
+    if (user && user._id) {
+      formData.append("user", user._id as string);
+    }
+    formData.append("college", selectedCollege);
+    //  if user upload image file set image file from data
+    Array.from(data.image ?? []).forEach((file) => {
+      formData.append("file", file);
+    });
+    try {
+      const result = await createAdmission({ formData });
+      console.log("ad", result);
+      if (result?.data?.success) {
+        toast.success("Admitted successfully");
+        reset();
+        navigate("/my-college");
+        reset();
+      }
+
+      // handle backend error
+      if ("error" in result) {
+        toast.error("Admission process failed");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Admission process failed");
+    }
   };
 
   return (
@@ -106,13 +83,20 @@ const Admission = () => {
         </h1>
         {/* college name  */}
         <div className="grid grid-cols-2 lg:grid-cols-3 mt-8 lg:mt-12 gap-5 ">
+          {isCollegeDataLoading &&
+            [...Array(6).keys()].map((id) => (
+              <div
+                key={id}
+                className="rounded animate-pulse w-full h-25 px-4 py-7 bg-violet-900"
+              ></div>
+            ))}
           {colleges?.map((college: TCollege) => (
             <div
               key={college?._id}
               onClick={() => setSelectedCollege(college?._id)}
               className={`rounded text-center px-4 py-7 flex justify-center shadow items-center cursor-pointer hover:bg-violet-800 select-none transition duration-300 ${
                 college?._id == selectedCollege
-                  ? "bg-violet-800"
+                  ? "bg-blue-500"
                   : "bg-violet-900 "
               }`}
             >

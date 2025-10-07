@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { TUser } from "../../../types/user.type";
+import { googleLogOut } from "./firebase/authService";
 
 type TAuthInitialState = {
   user: TUser | null;
@@ -26,6 +27,9 @@ const authSlice = createSlice({
       state.googleUId = uid;
     },
     logOut: (state) => {
+      if (state.googleUId) {
+        googleLogOut();
+      }
       state.user = null;
       state.token = null;
       state.googleUId = null;

@@ -1,13 +1,20 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAppDispatch, useAppSelector } from "../../redux/features/hooks";
+import { logOut } from "../../redux/features/auth/authSlice";
 
 const Header = () => {
+  const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    dispatch(logOut());
+    navigate("/");
+  };
   const menuItems = [
     { name: "Home", path: "/" },
     { name: "College", path: "/college" },
     { name: "Admission", path: "/admission" },
   ];
-
-  const user = true;
 
   return (
     <div className="bg-violet-950 lg:py-2">
@@ -48,7 +55,10 @@ const Header = () => {
                 ))}
                 {user && (
                   <li className="">
-                    <button className="text-slate-100  lg:hidden hover:text-slate-300">
+                    <button
+                      onClick={handleLogout}
+                      className="text-slate-100  lg:hidden hover:text-slate-300"
+                    >
                       LogOut
                     </button>
                   </li>
@@ -107,11 +117,14 @@ const Header = () => {
                   <li className="">
                     <p className="text-slate-100 flex flex-col lg:flex-row gap-0 lg:gap-1">
                       <span> Welcome: </span>
-                      <span className="font-semibold"> Abdur Rahman</span>
+                      <span className="font-semibold"> {user?.name}</span>
                     </p>
                   </li>
                   <li className="">
-                    <button className="text-slate-100 hidden lg:block bg-blue-500 hover:bg-blue-400 transition duration-300 px-3 py-1">
+                    <button
+                      onClick={handleLogout}
+                      className="text-slate-100 hidden lg:block bg-blue-500 hover:bg-blue-400 transition duration-300 px-3 py-1"
+                    >
                       LogOut
                     </button>
                   </li>
