@@ -21,5 +21,25 @@ export const registerValidation = z.object({
       }
     ),
 });
+export const editProfileValidation = z.object({
+  name: z.string("Name is string").optional(),
+  phone: z.string().optional(),
+  image: z
+    .instanceof(FileList)
+    .refine(
+      (files) =>
+        files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type),
+      {
+        message: "Only .jpg, .png, and .webp formats are supported",
+      }
+    ),
+});
+export const passwordValidation = z.object({
+  oldPassword: z.string().min(6, "Old password is required"),
+  newPassword: z.string().min(6, "New password is required"),
+  confirmPassword: z.string().min(6, "Confirm password is required"),
+});
 
 export type TRegisterInputs = z.infer<typeof registerValidation>;
+export type TEditProfileInput = z.infer<typeof editProfileValidation>;
+export type TPasswordInputs = z.infer<typeof passwordValidation>;
