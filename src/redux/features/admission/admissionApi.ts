@@ -9,7 +9,21 @@ const admissionApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    myAdmittedCollege: builder.query({
+      query: () => ({
+        url: "/admission",
+        method: "GET",
+      }),
+      transformResponse: (data) => {
+        if (data?.data[0]) {
+          return data?.data[0].college;
+        } else {
+          return null;
+        }
+      },
+    }),
   }),
 });
 
-export const { useCreateAdmissionMutation } = admissionApi;
+export const { useCreateAdmissionMutation, useMyAdmittedCollegeQuery } =
+  admissionApi;

@@ -5,7 +5,6 @@ import { useGetSingleCollegeQuery } from "../../redux/features/college/collegeAp
 const CollegeDetails = () => {
   const { id } = useParams();
   const { data: college, isLoading } = useGetSingleCollegeQuery(id);
-  console.log(college);
   return (
     <div className="bg-violet-950">
       {isLoading && (
