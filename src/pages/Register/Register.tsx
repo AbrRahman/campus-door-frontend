@@ -1,13 +1,22 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 import {
   registerValidation,
   type TRegisterInputs,
 } from "../../schemas/registerValidation";
+import { toast } from "sonner";
+import { useCreateUserMutation } from "../../redux/features/auth/authApi";
+import { useState } from "react";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import type { TErrorResponse } from "../../types/error.type";
 
 const Register = () => {
+  const [duplicateEmailError, setDuplicateEmailError] = useState("");
+  // rtk query
+  const [createUser, { isLoading }] = useCreateUserMutation();
+  const navigate = useNavigate();
   // react hookFrom
   const {
     register,
@@ -19,9 +28,38 @@ const Register = () => {
   });
 
   //   handle Register form
-  const handleRegister: SubmitHandler<TRegisterInputs> = (data) => {
-    console.log(data);
-    reset();
+  const handleRegister: SubmitHandler<TRegisterInputs> = async (data) => {
+    // generate form data
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      if (key !== "image") {
+        formData.append(key, value as string);
+      }
+    }
+
+    //  if user upload image file set image file from data
+    Array.from(data.image ?? []).forEach((file) => {
+      formData.append("file", file);
+    });
+
+    const result = await createUser(formData);
+    console.log(result);
+    if (result?.data?.success) {
+      toast.success("Register successfully");
+      reset();
+      navigate("/login");
+    }
+
+    // handle backend error
+    if ("error" in result) {
+      const err = result?.error as FetchBaseQueryError & {
+        data: TErrorResponse;
+      };
+      if (err?.data?.error?.code == 11000) {
+        setDuplicateEmailError(err.data.errorSource?.[0]?.message);
+      }
+      toast.error("Register failed");
+    }
   };
 
   return (
@@ -56,7 +94,12 @@ const Register = () => {
                     placeholder="Enter your email"
                     className="w-full bg-violet-950 text-white placeholder-slate-300 border border-violet-600 rounded-lg px-4 py-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 outline-none"
                   />
-                  <p className="text-red-500">{errors?.email?.message}</p>
+                  <p className="text-red-500">
+                    {" "}
+                    {errors?.email?.message
+                      ? errors?.email?.message
+                      : duplicateEmailError}
+                  </p>
                 </div>
                 {/* full password */}
                 <div>
@@ -103,7 +146,11 @@ const Register = () => {
                   type="submit"
                   className="cursor-pointer  bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
                 >
-                  Register
+                  {isLoading ? (
+                    <span className="loading loading-spinner mx-5 loading-md"></span>
+                  ) : (
+                    <span>Register</span>
+                  )}
                 </button>
               </div>
             </form>
