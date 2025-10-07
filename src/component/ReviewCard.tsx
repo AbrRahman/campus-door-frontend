@@ -15,8 +15,10 @@ const ReviewCard = ({ review }: { review: TReview }) => {
           {review?.college?.name}
         </h3>
       </div>
-      <p className="text-sm my-2 text-slate-400">"{review?.comment}"</p>
-      <h5 className="text-xs text-slate-400">{review?.createdAt}</h5>
+      <p className="text-sm my-2 text-slate-300">"{review?.comment}"</p>
+      <h5 className="text-xs text-slate-300 font-semibold">
+        {review?.createdAt}
+      </h5>
     </div>
   );
 };
