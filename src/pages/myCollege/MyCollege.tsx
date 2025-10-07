@@ -1,5 +1,5 @@
 import RatingCount from "../../component/RatingCount/RatingCount";
-import ReviewForm from "../../component/review/ReviewForm";
+import ReviewForm from "../../component/reviews/ReviewForm";
 import { useMyAdmittedCollegeQuery } from "../../redux/features/admission/admissionApi";
 
 const MyCollege = () => {

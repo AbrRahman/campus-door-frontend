@@ -1,5 +1,5 @@
-import type { TReview } from "../types/review.types";
-import RatingCount from "./RatingCount/RatingCount";
+import type { TReview } from "../../types/review.types";
+import RatingCount from "../RatingCount/RatingCount";
 
 const ReviewCard = ({ review }: { review: TReview }) => {
   const formattedDate = new Date(review?.createdAt).toLocaleDateString(

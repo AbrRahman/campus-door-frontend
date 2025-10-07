@@ -17,7 +17,7 @@ const Admission = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { data: colleges, isLoading: isCollegeDataLoading } =
     useGetAllCollegeQuery("");
-  const [createAdmission] = useCreateAdmissionMutation();
+  const [createAdmission, { isLoading }] = useCreateAdmissionMutation();
   const navigate = useNavigate();
 
   // react hookFrom
@@ -78,7 +78,7 @@ const Admission = () => {
   return (
     <div className="bg-violet-950">
       <div className=" container mx-auto px-4 lg:px-20 pt-8 pb-12  lg:pb-20 ">
-        <h1 className="text-2xl lg:text-4xl text-center text-slate-100 font-semibold">
+        <h1 className="text-2xl lg:text-3xl text-center text-slate-100 font-semibold">
           Select a College for Admission
         </h1>
         {/* college name  */}
@@ -202,7 +202,11 @@ const Admission = () => {
                     type="submit"
                     className="w-full cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300"
                   >
-                    Submit Application
+                    {isLoading ? (
+                      <span className="loading loading-spinner mx-5 loading-md"></span>
+                    ) : (
+                      <span> Submit Application</span>
+                    )}
                   </button>
                 </div>
               </form>

@@ -1,5 +1,5 @@
-import { useGetAllReviewQuery } from "../redux/features/review/reviewApi";
-import type { TReview } from "../types/review.types";
+import { useGetAllReviewQuery } from "../../redux/features/review/reviewApi";
+import type { TReview } from "../../types/review.types";
 import ReviewCard from "./ReviewCard";
 
 const Review = () => {
@@ -13,9 +13,11 @@ const Review = () => {
           Student Reviews
         </h1>
         <div className="mt-8 lg:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-3">
-          {reviews?.map((review: TReview) => (
-            <ReviewCard key={review?._id} review={review} />
-          ))}
+          {(reviews?.length > 3 ? reviews?.slice(0, 3) : reviews)?.map(
+            (review: TReview) => (
+              <ReviewCard key={review?._id} review={review} />
+            )
+          )}
         </div>
       </div>
     </div>

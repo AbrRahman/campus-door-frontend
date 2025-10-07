@@ -100,7 +100,7 @@ const Login = () => {
     <div className="bg-violet-950">
       <div className=" container mx-auto px-4 lg:px-20 pt-8 pb-12  lg:pb-20 ">
         <div className="bg-violet-900 shadow-lg rounded-lg lg:w-3/5 mx-auto px-8 py-8 lg:py-12 mt-8 lg:mt-12">
-          <h1 className="text-2xl lg:text-4xl text-center text-slate-100 font-semibold">
+          <h1 className="text-2xl lg:text-3xl text-center text-slate-100 font-semibold">
             Login Form
           </h1>
           <div>
