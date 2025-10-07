@@ -4,10 +4,30 @@ import {
   loginValidation,
   type TLoginInputs,
 } from "../../schemas/loginValidation";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
+import { toast } from "sonner";
+import { loginWithGoogle } from "../../redux/features/auth/firebase/authService";
+import {
+  useFirebaseLoginMutation,
+  useLoginMutation,
+} from "../../redux/features/auth/authApi";
+import { useAppDispatch } from "../../redux/features/hooks";
+import { verifyToken } from "../../utils/verifyToken";
+import { setUser } from "../../redux/features/auth/authSlice";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useState } from "react";
 
 const Login = () => {
+  const [unauthorizeErr, setUnAuthorizeErr] = useState("");
+  // trk query call
+  const [fireBaseLogin] = useFirebaseLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
+
+  const dispatch = useAppDispatch();
+
+  const location = useLocation();
+  const navigate = useNavigate();
   // react hookFrom
   const {
     register,
@@ -18,10 +38,62 @@ const Login = () => {
     resolver: zodResolver(loginValidation),
   });
 
-  //   handle Login form
-  const handleLogin: SubmitHandler<TLoginInputs> = (data) => {
-    console.log(data);
-    reset();
+  // after login navigation path
+  const from = location.state?.from?.pathname || "/";
+
+  const handleLogin: SubmitHandler<TLoginInputs> = async (data) => {
+    try {
+      const result = await login(data);
+
+      // handle invalid email or password case
+      if ("error" in result) {
+        const err = result?.error as FetchBaseQueryError & {
+          status: number;
+        };
+
+        if (err?.status == 401) {
+          toast.error("Login failed");
+          setUnAuthorizeErr("Invalid email or password");
+          return;
+        }
+      }
+
+      const user = await verifyToken(result?.data?.accessToken);
+
+      dispatch(setUser({ user, token: result?.data?.accessToken, uid: null }));
+      toast.success("Login ");
+      navigate(from);
+      reset();
+    } catch (err) {
+      toast.error("Login failed");
+      console.log(err);
+    }
+  };
+
+  // handle google login
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await loginWithGoogle();
+
+      const { photoURL, displayName, email, uid } = result;
+
+      if (photoURL && displayName && email) {
+        const { data } = await fireBaseLogin({
+          name: displayName,
+          email: email,
+          image: photoURL,
+        });
+
+        const user = await verifyToken(data?.data?.accessToken);
+        dispatch(setUser({ user, token: data?.data?.accessToken, uid }));
+        toast.success("Login ");
+
+        navigate(from, { replace: true });
+      }
+    } catch (err) {
+      toast.error("Login failed");
+      console.log(err);
+    }
   };
 
   return (
@@ -63,17 +135,25 @@ const Login = () => {
                   </Link>
                 </p>
                 {/* Login btn btn */}
+                <p className="text-red-500 pb-0.5">{unauthorizeErr}</p>
                 <button
                   type="submit"
                   className="cursor-pointer  bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
                 >
-                  Login
+                  {isLoading ? (
+                    <span className="loading loading-spinner mx-5 loading-md"></span>
+                  ) : (
+                    <span>Login</span>
+                  )}
                 </button>
               </div>
             </form>
             <div className="flex flex-col lg:flex-row  mt-2.5 gap-2.5 lg:gap-4">
               {/* google login */}
-              <button className="w-full flex items-center gap-2 cursor-pointer justify-center bg-red-500 hover:bg-red-600  text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300">
+              <button
+                onClick={handleGoogleLogin}
+                className="w-full flex items-center gap-2 cursor-pointer justify-center bg-red-500 hover:bg-red-600  text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300"
+              >
                 <span>Login With Google</span>
                 <FaGoogle className=" size-4" />
               </button>
