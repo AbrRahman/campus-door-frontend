@@ -5,10 +5,16 @@ import {
   type TReviewInput,
 } from "../../schemas/reviewValidation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useSubmitReviewMutation } from "../../redux/features/review/reviewApi";
+import { useAppSelector } from "../../redux/features/hooks";
 
 const ReviewForm = ({ collegeId }: { collegeId: string }) => {
   const [rating, setRating] = useState(1.5);
-  console.log(collegeId);
+  // call rtk query
+  const [submitReview, { isLoading }] = useSubmitReviewMutation();
+  const { user } = useAppSelector((state) => state.auth);
+
   const {
     register,
     handleSubmit,
@@ -19,8 +25,22 @@ const ReviewForm = ({ collegeId }: { collegeId: string }) => {
   });
 
   const handelReview: SubmitHandler<TReviewInput> = async (data) => {
-    console.log(data);
-    reset();
+    try {
+      const result = await submitReview({
+        comment: data?.comment,
+        rating: rating,
+        user: user?._id,
+        college: collegeId,
+      });
+      if (result && result?.data?.success) {
+        toast.success("Review submitted successfully!");
+        reset();
+        setRating(1.5);
+      }
+    } catch (err) {
+      toast.error("Review submitted Failed!");
+      console.log(err);
+    }
   };
 
   return (
@@ -129,7 +149,11 @@ const ReviewForm = ({ collegeId }: { collegeId: string }) => {
           type="submit"
           className="cursor-pointer select-none  bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
         >
-          Submit
+          {isLoading ? (
+            <span className="loading loading-spinner mx-4 loading-md"></span>
+          ) : (
+            <span>Submit</span>
+          )}
         </button>
       </form>
     </div>

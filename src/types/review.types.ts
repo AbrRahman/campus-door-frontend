@@ -1,6 +1,8 @@
 export type TReview = {
   _id: string;
-  name: string;
+  user: {
+    name: string;
+  };
   college: {
     name: string;
   };
