@@ -7,8 +7,16 @@ import {
 } from "../../schemas/registerValidation";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetUserProfileQuery } from "../../redux/features/auth/authApi";
+import {
+  useGetUserProfileQuery,
+  usePasswordChangeMutation,
+  useUpdateProfileMutation,
+} from "../../redux/features/auth/authApi";
 import { useMyAdmittedCollegeQuery } from "../../redux/features/admission/admissionApi";
+import { toast } from "sonner";
+import { useAppDispatch } from "../../redux/features/hooks";
+import { useNavigate } from "react-router";
+import { logOut } from "../../redux/features/auth/authSlice";
 
 const Profile = () => {
   const [editProfileToggle, setEditProfileToggle] = useState(false);
@@ -18,39 +26,79 @@ const Profile = () => {
   const { data: profile, isLoading } = useGetUserProfileQuery("");
   // admitted college
   const { data: college } = useMyAdmittedCollegeQuery("");
+  // update user quey call
+  const [updateProfile, { isLoading: updateProfileLoading }] =
+    useUpdateProfileMutation();
+  const [updatePassword, { isLoading: passwordChangeLoading }] =
+    usePasswordChangeMutation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<TEditProfileInput>({
     resolver: zodResolver(editProfileValidation),
   });
 
   //   handle edit  profile info
-  const handleEditProfile: SubmitHandler<TEditProfileInput> = (data) => {
-    console.log(data);
-    reset();
+  const handleEditProfile: SubmitHandler<TEditProfileInput> = async (data) => {
+    // generate profile form data
+    const formData = new FormData();
+    formData.append("name", data?.name as string);
+    formData.append("phone", data?.phone as string);
+
+    //  if user upload image file set image file from data
+    Array.from(data.image ?? []).forEach((file) => {
+      formData.append("file", file);
+    });
+
+    try {
+      const result = await updateProfile(formData)?.unwrap();
+      if (result?.success) {
+        toast.success("Profile Updated");
+        setEditProfileToggle(false);
+      }
+    } catch (err) {
+      toast.error("Profile update failed");
+      console.log(err);
+    }
   };
 
   //   handle password
   const {
     register: passwordRegister,
     handleSubmit: passwordHandleSubmit,
-    reset: resetPassword,
+    reset,
     formState: { errors: passwordErrors },
   } = useForm<TPasswordInputs>({
     resolver: zodResolver(passwordValidation),
   });
   // handel password change
-  const handelPasswordChange: SubmitHandler<TPasswordInputs> = (data) => {
+  const handelPasswordChange: SubmitHandler<TPasswordInputs> = async (data) => {
     if (data?.newPassword !== data?.confirmPassword) {
       setPasswordConfirmErr("Passwords do not match");
       return;
     }
-    console.log(data);
-    resetPassword();
+    try {
+      const result = await updatePassword({
+        password: data?.newPassword,
+        oldPassword: data?.oldPassword,
+      }).unwrap();
+      if (result?.success) {
+        toast.success("Password changed successfully!");
+        reset();
+        setPasswordConfirmErr("");
+        dispatch(logOut());
+        navigate("/login");
+      } else {
+        toast.error("Something went wrong. Try again later.");
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Try again later.");
+      console.log(err);
+    }
   };
 
   return (
@@ -74,6 +122,7 @@ const Profile = () => {
                   className="w-full"
                   src={profile?.image}
                   alt="profile pice"
+                  referrerPolicy="no-referrer"
                 />
               </div>
               <div className="text-center mt-2 space-y-1">
@@ -103,6 +152,7 @@ const Profile = () => {
                       <h1>Email: </h1>
                       <h1>{profile?.email}</h1>
                     </div>
+
                     <div className="text-slate-400 rounded px-2 py-1 flex items-center gap-2 font-semibold">
                       <h1>Phone: </h1>
                       <h1>{profile?.phone}</h1>
@@ -159,6 +209,23 @@ const Profile = () => {
                           />
                           {/* <p className="text-red-500">{errors?.email?.message}</p> */}
                         </div>
+                        {/* college */}
+                        <div>
+                          <label className="block text-slate-100 mb-1.5">
+                            College
+                          </label>
+                          <input
+                            defaultValue={
+                              college?.name
+                                ? college?.name
+                                : "Not admitted to any college."
+                            }
+                            type="text"
+                            disabled
+                            className="w-full bg-violet-950 text-white placeholder-slate-300 border border-violet-600 rounded-lg px-4 py-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 outline-none"
+                          />
+                          {/* <p className="text-red-500">{errors?.email?.message}</p> */}
+                        </div>
                         {/* full password */}
                         <div>
                           <label className="block text-slate-100 mb-1.5">
@@ -194,7 +261,11 @@ const Profile = () => {
                           type="submit"
                           className="cursor-pointer  bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
                         >
-                          Update
+                          {updateProfileLoading ? (
+                            <span className="loading loading-spinner mx-5 loading-md"></span>
+                          ) : (
+                            <span> Update</span>
+                          )}
                         </button>
                       </div>
                     </form>
@@ -258,7 +329,11 @@ const Profile = () => {
                           type="submit"
                           className="cursor-pointer  bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
                         >
-                          Save Change
+                          {passwordChangeLoading ? (
+                            <span className="loading loading-spinner mx-7 loading-md"></span>
+                          ) : (
+                            <span> Update</span>
+                          )}
                         </button>
                       </div>
                     </form>
