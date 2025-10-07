@@ -50,7 +50,7 @@ const CollegeCard = ({ college }: { college: TCollege }) => {
           </div>
           <MdScience className=" size-6 font-normal" />
         </div>
-        <div className="card-actions ">
+        <div className="card-actions mt-auto ">
           <Link
             to={`/college/${college?._id}`}
             className="text-slate-100 px-4 py-2 rounded bg-blue-500 hover:bg-blue-400 text-base  transition duration-300"

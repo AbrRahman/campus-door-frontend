@@ -1,77 +1,14 @@
 import CollegeCard from "../../component/collegeCard/CollegeCard";
 import CollegeCardSkeleton from "../../component/loadingSkeletons/CollegeCardSkeleton";
+import { useGetAllCollegeQuery } from "../../redux/features/college/collegeApi";
+import { useAppSelector } from "../../redux/features/hooks";
 import type { TCollege } from "../../types/college.type";
 
 const College = () => {
-  const colleges = [
-    {
-      _id: "68e398bc77383db5b32ba89d",
-      name: "Aetherfield University",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-    },
-    {
-      _id: "68e398bc77383db5b32ba89f",
-      name: "Aetherfield University",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-    },
-    {
-      _id: "68e398bc77383db5b32ba89dd",
-      name: "Aetherfield University",
-      admissionDates: "May 10 - July 20, 2026",
-      rating: 4.8,
-      researchCount: 25,
-      description:
-        "Aetherfield University is a leading global institute focused on innovation in technology, environmental science, and design. Its sprawling campus blends modern architecture with lush green surroundings.",
-      events: [
-        "TechNova Summit",
-        "Global Science Expo",
-        "Cultural Fusion Night",
-      ],
-      sports: ["Basketball", "Swimming", "Track & Field"],
-      researchWorks: [
-        "AI for Sustainable Agriculture",
-        "Climate Resilience Modeling",
-        "Autonomous Robotics Framework",
-      ],
-      image:
-        "https://res.cloudinary.com/dmhfrwdq3/image/upload/v1759745777/college-1_ukt2kv.png",
-    },
-  ];
-  const isLoading = false;
+  const { searchTerm } = useAppSelector((state) => state.college);
+  // call rtk query
+  const { data: colleges, isLoading } = useGetAllCollegeQuery(searchTerm);
+
   return (
     <div className="bg-violet-950">
       <div className=" container mx-auto px-4 lg:px-20 pt-8 pb-12  lg:pb-20 ">
@@ -82,14 +19,12 @@ const College = () => {
         {/* feature college */}
         <div className="mt-8 lg:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-3.5">
           {isLoading &&
-            [...Array(3).keys()].map((index) => (
+            [...Array(3).keys()]?.map((index) => (
               <CollegeCardSkeleton key={index} />
             ))}
-          {(colleges?.length > 3 ? colleges.slice(0, 3) : colleges).map(
-            (college: TCollege) => (
-              <CollegeCard key={college?._id} college={college} />
-            )
-          )}
+          {colleges?.map((college: TCollege) => (
+            <CollegeCard key={college?._id} college={college} />
+          ))}
         </div>
       </div>
     </div>

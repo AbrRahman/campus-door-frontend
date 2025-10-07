@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
+import collegeReducer from "../features/college/collegeSlice";
 
 import {
   persistReducer,
@@ -24,6 +25,7 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
+    college: collegeReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
 
