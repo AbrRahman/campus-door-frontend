@@ -23,7 +23,7 @@ const authApi = baseApi.injectEndpoints({
     // for google authentication data post
     firebaseLogin: builder.mutation({
       query: (payload) => ({
-        url: "auth/google-login",
+        url: "auth/firebase-login",
         method: "POST",
         body: payload,
       }),

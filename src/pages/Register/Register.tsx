@@ -1,22 +1,32 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 import {
   registerValidation,
   type TRegisterInputs,
 } from "../../schemas/registerValidation";
 import { toast } from "sonner";
-import { useCreateUserMutation } from "../../redux/features/auth/authApi";
+import {
+  useCreateUserMutation,
+  useFirebaseLoginMutation,
+} from "../../redux/features/auth/authApi";
 import { useState } from "react";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import type { TErrorResponse } from "../../types/error.type";
+import { loginWithGoogle } from "../../redux/features/auth/firebase/authService";
+import { verifyToken } from "../../utils/verifyToken";
+import { useAppDispatch } from "../../redux/features/hooks";
+import { setUser } from "../../redux/features/auth/authSlice";
 
 const Register = () => {
   const [duplicateEmailError, setDuplicateEmailError] = useState("");
   // rtk query
   const [createUser, { isLoading }] = useCreateUserMutation();
+  const [fireBaseLogin] = useFirebaseLoginMutation();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   // react hookFrom
   const {
     register,
@@ -43,7 +53,6 @@ const Register = () => {
     });
 
     const result = await createUser(formData);
-    console.log(result);
     if (result?.data?.success) {
       toast.success("Register successfully");
       reset();
@@ -59,6 +68,33 @@ const Register = () => {
         setDuplicateEmailError(err.data.errorSource?.[0]?.message);
       }
       toast.error("Register failed");
+    }
+  };
+
+  // handle google login
+  const handleGoogleLogin = async () => {
+    console.log("hello");
+    try {
+      const result = await loginWithGoogle();
+
+      const { photoURL, displayName, email, uid } = result;
+
+      if (photoURL && displayName && email) {
+        const { data } = await fireBaseLogin({
+          name: displayName,
+          email: email,
+          image: photoURL,
+        });
+
+        const user = await verifyToken(data?.data?.accessToken);
+        dispatch(setUser({ user, token: data?.data?.accessToken, uid }));
+        toast.success("Login ");
+        const from = location.state?.from?.pathname || "/";
+        navigate(from, { replace: true });
+      }
+    } catch (err) {
+      toast.error("Login failed");
+      console.log(err);
     }
   };
 
@@ -156,7 +192,10 @@ const Register = () => {
             </form>
             <div className="flex flex-col lg:flex-row  mt-2.5 gap-2.5 lg:gap-4">
               {/* google Register */}
-              <button className="w-full flex items-center gap-2 cursor-pointer justify-center bg-red-500 hover:bg-red-600  text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300">
+              <button
+                onClick={handleGoogleLogin}
+                className="w-full flex items-center gap-2 cursor-pointer justify-center bg-red-500 hover:bg-red-600  text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300"
+              >
                 <span>Register With Google</span>
                 <FaGoogle className=" size-4" />
               </button>
