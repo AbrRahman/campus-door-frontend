@@ -10,6 +10,7 @@ import Profile from "../pages/profile/Profile";
 import MyCollege from "../pages/myCollege/MyCollege";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
+import NotFound from "../pages/notFound/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -53,5 +54,9 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
