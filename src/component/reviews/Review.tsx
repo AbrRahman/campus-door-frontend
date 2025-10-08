@@ -4,7 +4,6 @@ import ReviewCard from "./ReviewCard";
 
 const Review = () => {
   const { data: reviews } = useGetAllReviewQuery(undefined);
-  console.log(reviews);
 
   return (
     <div className="bg-violet-950">

@@ -1,10 +1,12 @@
 import type { TCollege } from "../../types/college.type";
 import { FaCalendarAlt } from "react-icons/fa";
 import { MdScience } from "react-icons/md";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import RatingCount from "../RatingCount/RatingCount";
 
 const CollegeCard = ({ college }: { college: TCollege }) => {
-  console.log(college);
+  const location = useLocation();
+  const from = location?.pathname;
   return (
     <div className="card bg-violet-900 shadow-sm">
       {/* college image */}
@@ -16,6 +18,11 @@ const CollegeCard = ({ college }: { college: TCollege }) => {
         <h2 className="card-title text-2xl font-semibold text-slate-100">
           {college?.name}
         </h2>
+        {from == "/college" && (
+          <>
+            <RatingCount value={Number(college?.rating)} />
+          </>
+        )}
         {/* admission data */}
         <div className="text-slate-100 mt-0.5 text-sm font-semibold flex justify-between items-center">
           <div>
@@ -39,7 +46,6 @@ const CollegeCard = ({ college }: { college: TCollege }) => {
             ))}
           </ul>
         </div>
-
         {/* Research Highlight*/}
         <div className="text-slate-100 mt-0.5 text-sm font-semibold flex justify-between items-center">
           <div>
@@ -50,6 +56,11 @@ const CollegeCard = ({ college }: { college: TCollege }) => {
           </div>
           <MdScience className=" size-6 font-normal" />
         </div>
+        {from == "/college" && (
+          <p className="text-slate-300 mt-0.5">
+            Research Count: {college?.researchCount}
+          </p>
+        )}
         <div className="card-actions mt-auto ">
           <Link
             to={`/college/${college?._id}`}

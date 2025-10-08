@@ -62,7 +62,7 @@ const Login = () => {
 
       dispatch(setUser({ user, token: result?.data?.accessToken, uid: null }));
       toast.success("Login ");
-      navigate(from);
+      navigate(from, { replace: true });
       reset();
     } catch (err) {
       toast.error("Login failed");

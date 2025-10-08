@@ -1,6 +1,23 @@
+import type { FormEvent } from "react";
 import { IoIosSearch } from "react-icons/io";
+import { useAppDispatch } from "../../redux/features/hooks";
+import { setSearchTerm } from "../../redux/features/college/collegeSlice";
+import { useNavigate } from "react-router";
 
 const HeroBanner = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const search = (e.currentTarget.search as HTMLInputElement).value;
+    dispatch(setSearchTerm(search));
+
+    // navigate event page
+    navigate(`/college?from=home`);
+    e.currentTarget.reset();
+  };
+
   return (
     <div className="relative text-white h-[87vh] bg-indigo-950/10 flex items-center justify-center">
       {/* banner image */}
@@ -11,7 +28,10 @@ const HeroBanner = () => {
       />
 
       {/* search bare  */}
-      <form className="mx-auto w-11/12 lg:w-1/2 relative">
+      <form
+        onSubmit={handleSearch}
+        className="mx-auto w-11/12 lg:w-1/2 relative"
+      >
         <input
           className="  w-full px-5 py-3.5 rounded-4xl border bg-slate-100 text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md"
           type="text"

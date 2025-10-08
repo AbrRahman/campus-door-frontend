@@ -34,7 +34,6 @@ const ResearchSection = () => {
     },
   ];
 
-  console.log(researchPapers);
   return (
     <div className="bg-violet-900">
       <div className=" container mx-auto px-4 lg:px-20 py-12 lg:py-20">

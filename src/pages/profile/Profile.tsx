@@ -119,7 +119,7 @@ const Profile = () => {
             <div className="lg:col-span-4">
               <div className="mx-auto flex justify-center items-center w-52 h-52 rounded-full">
                 <img
-                  className="w-full"
+                  className="w-full rounded-full"
                   src={profile?.image}
                   alt="profile pice"
                   referrerPolicy="no-referrer"

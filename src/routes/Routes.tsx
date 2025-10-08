@@ -8,6 +8,8 @@ import Login from "../pages/login/Login";
 import Register from "../pages/Register/Register";
 import Profile from "../pages/profile/Profile";
 import MyCollege from "../pages/myCollege/MyCollege";
+import PrivateRoute from "./PrivateRoute";
+import PublicRoute from "./PublicRoute";
 
 export const router = createBrowserRouter([
   {
@@ -18,10 +20,38 @@ export const router = createBrowserRouter([
       { path: "/college", element: <College /> },
       { path: "/college/:id", element: <CollegeDetails /> },
       { path: "/admission", element: <Admission /> },
-      { path: "/login", element: <Login /> },
-      { path: "/register", element: <Register /> },
-      { path: "/profile", element: <Profile /> },
-      { path: "/my-college", element: <MyCollege /> },
+      {
+        path: "/login",
+        element: (
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        ),
+      },
+      {
+        path: "/register",
+        element: (
+          <PublicRoute>
+            <Register />{" "}
+          </PublicRoute>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/my-college",
+        element: (
+          <PrivateRoute>
+            <MyCollege />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
 ]);
